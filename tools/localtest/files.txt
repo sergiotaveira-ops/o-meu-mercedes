@@ -1,1 +1,10 @@
+app/src/main/java/pt/sergiotaveira/mercedes/api/Json.kt
+app/src/main/java/pt/sergiotaveira/mercedes/api/Http.kt
+app/src/main/java/pt/sergiotaveira/mercedes/api/MbConstants.kt
+app/src/main/java/pt/sergiotaveira/mercedes/api/Pkce.kt
+app/src/main/java/pt/sergiotaveira/mercedes/api/TokenStore.kt
+app/src/main/java/pt/sergiotaveira/mercedes/api/MbAuth.kt
 app/src/test/java/pt/sergiotaveira/mercedes/ProtoSmokeTest.kt
+app/src/test/java/pt/sergiotaveira/mercedes/api/FakeTransport.kt
+app/src/test/java/pt/sergiotaveira/mercedes/api/PkceTest.kt
+app/src/test/java/pt/sergiotaveira/mercedes/api/MbAuthTest.kt
