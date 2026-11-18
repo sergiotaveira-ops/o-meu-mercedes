@@ -28,10 +28,12 @@ class FakeWs : WsFactory {
     val opened = mutableListOf<Map<String, String>>()
     val sent = mutableListOf<ClientMessage>()
     var listener: WsListener? = null
+    val listeners = mutableListOf<WsListener>()
     var failWith: Int? = null
     override fun open(url: String, headers: Map<String, String>, listener: WsListener): WsConnection {
         opened += headers
         this.listener = listener
+        listeners += listener
         val code = failWith
         if (code != null) listener.onFailure(code, "HTTP $code") else listener.onOpen()
         return object : WsConnection {
@@ -125,6 +127,15 @@ class MbSocketTest {
         assertEquals(SocketError.Blocked, withTimeout(2000) { err.await() })
         delay(100)
         assertEquals(1, ws.opened.size)
+    }
+
+    @Test
+    fun refreshDoesNotOpenTwoConnections() = withSocket { s, ws ->
+        s.connect(); waitFor { ws.opened.size == 1 }
+        s.disconnect(); s.connect(); waitFor { ws.opened.size == 2 }
+        ws.listeners[0].onClosed()   // late close event from the old connection
+        delay(100)
+        assertEquals(2, ws.opened.size)
     }
 
     @Test

@@ -81,16 +81,21 @@ class MbSocket(
     @Volatile private var wanted = false
     @Volatile private var connecting = false
     @Volatile private var retries = 0
+    /** Bumped on every disconnect: events and reconnects from an older connection are ignored. */
+    @Volatile private var generation = 0
 
     fun connect() {
         if (connecting || conn != null) return
         wanted = true
         connecting = true
-        scope.launch { openNow() }
+        val gen = generation
+        scope.launch { openNow(gen) }
     }
 
     fun disconnect() {
         wanted = false
+        connecting = false
+        generation++
         conn?.close()
         conn = null
         open.value = false
@@ -111,17 +116,19 @@ class MbSocket(
         }
     }
 
-    private suspend fun openNow() {
+    private suspend fun openNow(gen: Int) {
+        if (gen != generation) return
         val token = try {
             auth.validAccessToken()
         } catch (e: AuthError.Blocked) {
             fail(SocketError.Blocked); return
         } catch (e: AuthError.Network) {
-            connecting = false; _errors.trySend(SocketError.Network(e.message ?: "")); scheduleReconnect(); return
+            connecting = false; _errors.trySend(SocketError.Network(e.message ?: "")); scheduleReconnect(gen); return
         } catch (e: AuthError) {
             fail(SocketError.AuthExpired); return
         }
-        conn = factory.open(url, headers(token), listener)
+        if (gen != generation) return
+        conn = factory.open(url, headers(token), listener(gen))
     }
 
     private fun fail(e: SocketError) {
@@ -129,34 +136,37 @@ class MbSocket(
         _errors.trySend(e)
     }
 
-    private fun scheduleReconnect() {
-        if (!wanted) return
+    private fun scheduleReconnect(gen: Int) {
+        if (!wanted || gen != generation) return
         val wait = minOf(10_000L shl minOf(retries, 4), 120_000L)
         retries++
         connecting = true
-        scope.launch { backoff(wait); if (wanted) openNow() else connecting = false }
+        scope.launch { backoff(wait); if (wanted && gen == generation) openNow(gen) else if (gen == generation) connecting = false }
     }
 
-    private val listener = object : WsListener {
-        override fun onOpen() { retries = 0; connecting = false; open.value = true }
+    private fun listener(gen: Int) = object : WsListener {
+        override fun onOpen() { if (gen == generation) { retries = 0; connecting = false; open.value = true } }
 
         override fun onMessage(bytes: ByteArray) {
+            if (gen != generation) return
             val msg = try { PushMessage.parseFrom(bytes) } catch (e: Exception) { return }
             handle(msg)
         }
 
         override fun onFailure(httpCode: Int?, message: String) {
+            if (gen != generation) return
             conn = null; open.value = false
             when (httpCode) {
                 429 -> fail(SocketError.Blocked)
                 401, 403 -> fail(SocketError.AuthExpired)
-                else -> { connecting = false; _errors.trySend(SocketError.Network(message)); scheduleReconnect() }
+                else -> { connecting = false; _errors.trySend(SocketError.Network(message)); scheduleReconnect(gen) }
             }
         }
 
         override fun onClosed() {
+            if (gen != generation) return
             conn = null; open.value = false; connecting = false
-            scheduleReconnect()
+            scheduleReconnect(gen)
         }
     }
 
