@@ -6,8 +6,14 @@ app/src/main/java/pt/sergiotaveira/mercedes/api/TokenStore.kt
 app/src/main/java/pt/sergiotaveira/mercedes/api/MbAuth.kt
 app/src/main/java/pt/sergiotaveira/mercedes/api/CarState.kt
 app/src/main/java/pt/sergiotaveira/mercedes/api/CarStateParser.kt
+app/src/main/java/pt/sergiotaveira/mercedes/api/Commands.kt
+app/src/main/java/pt/sergiotaveira/mercedes/api/ProtoAdapter.kt
+app/src/main/java/pt/sergiotaveira/mercedes/api/MbSocket.kt
 app/src/test/java/pt/sergiotaveira/mercedes/ProtoSmokeTest.kt
 app/src/test/java/pt/sergiotaveira/mercedes/api/FakeTransport.kt
 app/src/test/java/pt/sergiotaveira/mercedes/api/PkceTest.kt
 app/src/test/java/pt/sergiotaveira/mercedes/api/MbAuthTest.kt
 app/src/test/java/pt/sergiotaveira/mercedes/api/CarStateParserTest.kt
+app/src/test/java/pt/sergiotaveira/mercedes/api/CommandsTest.kt
+app/src/test/java/pt/sergiotaveira/mercedes/api/ProtoAdapterTest.kt
+app/src/test/java/pt/sergiotaveira/mercedes/api/MbSocketTest.kt
