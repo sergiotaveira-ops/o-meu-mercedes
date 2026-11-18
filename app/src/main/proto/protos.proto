@@ -1,0 +1,85 @@
+syntax = "proto3";
+
+package proto;
+option java_package = "pt.sergiotaveira.mercedes.proto";
+option java_outer_classname = "ProtosProto";
+option java_multiple_files = true;
+
+
+enum SubscriptionErrorType {
+  UNKNOWN = 0;
+  INVALID_JWT = 1;
+}
+enum OperatingSystemName {
+  UNKNOWN_OPERATING_SYSTEM = 0;
+  IOS = 1;
+  ANDROID = 2;
+  INT_TEST = 3;
+  MANUAL_TEST = 4;
+  WEB = 5;
+}
+message SubscribeRequest {
+  repeated string topics = 1;
+  bool replace = 2;
+}
+message SubscribeResponse {
+  bool success = 1;
+  map<string, .proto.SubscriptionError> errors = 2;
+  repeated string subscribed_topics = 3;
+}
+message UnsubscribeRequest {
+  repeated string topics = 1;
+  bool anticipate_response = 2;
+}
+message UnsubscribeResponse {
+  bool success = 1;
+  map<string, .proto.SubscriptionError> errors = 2;
+  repeated string unsubscribed_topics = 3;
+}
+message SubscriptionError {
+  repeated .proto.SubscriptionErrorType code = 1;
+  repeated string message = 2;
+}
+message SubscribeToAppTwinRequest {
+  string session_id = 1;
+  string ciam_id = 2;
+  string device_locale = 3;
+  string app_id = 4;
+  string app_version = 5;
+  .proto.OperatingSystemName os_name = 6;
+  string os_version = 7;
+  string device_model = 8;
+  string network_carrier = 9;
+  string sdk_version = 10;
+}
+message ResubscribeToAppTwinRequest {
+  string session_id = 1;
+  string ciam_id = 2;
+}
+message ResubscribeToAppTwinResponse {
+  enum ResubscribeResult {
+    UNKNOWN_ERROR = 0;
+    SUCCESS = 1;
+    INVALID_JWT_ERROR = 2;
+    TARGET_DOES_NOT_EXIST = 3;
+  }
+  .proto.ResubscribeToAppTwinResponse.ResubscribeResult result = 1;
+}
+message SubscribeToAppTwinResponse {
+  bool success = 1;
+  .proto.SubscriptionErrorType error_code = 2;
+}
+message UnsubscribeFromAppTwinRequest {
+  string session_id = 1;
+}
+message UnsubscribeFromAppTwinResponse {
+  bool success = 1;
+  map<string, .proto.SubscriptionError> errors = 2;
+}
+message Heartbeat {
+}
+message AssignedVehicles {
+  repeated string vins = 1;
+}
+message AcknowledgeAssignedVehicles {
+}

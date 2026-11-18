@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package proto;
+option java_package = "pt.sergiotaveira.mercedes.proto";
+option java_outer_classname = "ServiceActivationProto";
+option java_multiple_files = true;
+
+
+enum ServiceStatus {
+  SERVICE_STATUS_UNKNOWN = 0;
+  SERVICE_STATUS_ACTIVE = 1;
+  SERVICE_STATUS_INACTIVE = 2;
+  SERVICE_STATUS_ACTIVATION_PENDING = 3;
+  SERVICE_STATUS_DEACTIVATION_PENDING = 4;
+}
+message AcknowledgeServiceStatusUpdatesByVIN {
+  int32 sequence_number = 1;
+}
+message AcknowledgeServiceStatusUpdate {
+  int32 sequence_number = 1;
+}
+message ServiceStatusUpdatesByVIN {
+  int32 sequence_number = 1;
+  map<string, .proto.ServiceStatusUpdate> updates = 2;
+}
+message ServiceStatusUpdate {
+  int32 sequence_number = 1;
+  string ciam_id = 7;
+  string vin = 5;
+  int64 emit_timestamp = 2;
+  int64 emit_timestamp_in_ms = 8;
+  map<int32, .proto.ServiceStatus> updates = 6;
+}

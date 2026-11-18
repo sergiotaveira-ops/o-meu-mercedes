@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package proto;
+option java_package = "pt.sergiotaveira.mercedes.proto";
+option java_outer_classname = "EventpushProto";
+option java_multiple_files = true;
+
+import "acp.proto";
+
+message EventPushCommand {
+  string vin = 1;
+  .proto.VVA.CommandState state = 2;
+  .proto.VVA.CommandCondition condition = 3;
+  .proto.ACP.CommandType type = 4;
+  int64 process_id = 5;
+  string tracking_id = 6;
+  string correlation_id = 7;
+  repeated int32 error_codes = 8;
+  string guid = 9;
+  int64 timestamp_in_s = 10;
+}

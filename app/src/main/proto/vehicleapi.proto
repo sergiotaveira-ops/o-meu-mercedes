@@ -1,0 +1,76 @@
+syntax = "proto3";
+
+package proto;
+option java_package = "pt.sergiotaveira.mercedes.proto";
+option java_outer_classname = "VehicleapiProto";
+option java_multiple_files = true;
+
+import "acp.proto";
+import "google/protobuf/struct.proto";
+
+message AcknowledgeAppTwinCommandStatusUpdatesByVIN {
+  int32 sequence_number = 1;
+}
+message AppTwinCommandStatusUpdatesByVIN {
+  int32 sequence_number = 1;
+  map<string, .proto.AppTwinCommandStatusUpdatesByPID> updates_by_vin = 2;
+}
+message AppTwinCommandStatusUpdatesByPID {
+  string vin = 1;
+  map<int64, .proto.AppTwinCommandStatus> updates_by_pid = 2;
+}
+message AppTwinCommandStatus {
+  int64 process_id = 1;
+  string request_id = 2;
+  int64 timestamp_in_ms = 3;
+  repeated .proto.VehicleAPIError errors = 4;
+  int64 blocking_time_seconds = 5;
+  int32 pin_attempts = 6;
+  .proto.ACP.CommandType type = 7;
+  .proto.VehicleAPI.CommandState state = 8;
+}
+message VehicleAPICommandPostResult {
+  int64 process_id = 1;
+  repeated .proto.VehicleAPIError errors = 2;
+  .proto.VehicleAPI.CommandState state = 3;
+}
+message VehicleAPICommandGetResult {
+  repeated .proto.VehicleAPICommandProcessStatus process = 1;
+  int32 queue_count = 2;
+  .proto.VehicleAPI.QueueType queue_type = 3;
+}
+message VehicleAPIDataGetResult {
+  map<string, .proto.VehicleAPIAttributeStatus> data = 1;
+}
+message VehicleAPIAttributeStatus {
+  .google.protobuf.Value value = 3;
+  int64 timestamp_in_ms = 2;
+  .proto.VehicleAPI.AttributeStatus Status = 1;
+}
+message VehicleAPICommandProcessStatus {
+  repeated .proto.VehicleAPIError errors = 1;
+  string instance_id = 2;
+  string name = 3;
+  int64 process_id = 4;
+  .google.protobuf.Value response_parameters = 6;
+  .proto.VehicleAPI.CommandState state = 7;
+  int64 timestamp_in_s = 8;
+  string tracking_id = 9;
+}
+message VehicleAPIError {
+  string code = 1;
+  string message = 2;
+  map<string, .google.protobuf.Value> attributes = 3;
+  repeated .proto.VehicleAPIError sub_errors = 4;
+}
+message AppTwinPendingCommandsRequest {
+}
+message AppTwinPendingCommandsResponse {
+  repeated .proto.PendingCommand pending_commands = 1;
+}
+message PendingCommand {
+  string vin = 1;
+  int64 process_id = 2;
+  string request_id = 3;
+  .proto.ACP.CommandType type = 4;
+}

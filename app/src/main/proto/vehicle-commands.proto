@@ -1,0 +1,612 @@
+syntax = "proto3";
+
+package proto;
+option java_package = "pt.sergiotaveira.mercedes.proto";
+option java_outer_classname = "VehicleCommandsProto";
+option java_multiple_files = true;
+
+import "google/protobuf/wrappers.proto";
+
+enum Door {
+  option allow_alias = true;
+  unknown_door = 0;
+  frontleft = 1;
+  frontright = 2;
+  rearleft = 3;
+  rearright = 4;
+  trunk = 5;
+  fuelflap = 6;
+  chargeflap = 7;
+  chargecoupler = 8;
+  UNKNOWN_DOOR = 0;
+  FRONT_LEFT = 1;
+  FRONT_RIGHT = 2;
+  REAR_LEFT = 3;
+  REAR_RIGHT = 4;
+  TRUNK = 5;
+  FUEL_FLAP = 6;
+  CHARGE_FLAP = 7;
+  CHARGE_COUPLER = 8;
+}
+enum ZEVPreconditioningType {
+  option allow_alias = true;
+  unknown_zev_preconditioning_command_type = 0;
+  immediate = 1;
+  departure = 2;
+  now = 3;
+  departureWeekly = 4;
+  UNKNOWN_ZEV_PRECONDITIONING_COMMAND_TYPE = 0;
+  IMMEDIATE = 1;
+  DEPARTURE = 2;
+  NOW = 3;
+  DEPARTURE_WEEKLY = 4;
+}
+enum TimeProfileDay {
+  option allow_alias = true;
+  Mo = 0;
+  Tu = 1;
+  We = 2;
+  Th = 3;
+  Fr = 4;
+  Sa = 5;
+  Su = 6;
+  MONDAY = 0;
+  TUESDAY = 1;
+  WEDNESDAY = 2;
+  THURSDAY = 3;
+  FRIDAY = 4;
+  SATURDAY = 5;
+  SUNDAY = 6;
+}
+enum DriveType {
+  UNKNOWN_DRIVE_TYPE = 0;
+  PICK_UP = 1;
+  DROP_OFF = 2;
+}
+enum ChargingBreakClockTimerEntryStatus {
+  DELETE = 0;
+  INACTIVE = 1;
+  ACTIVE = 2;
+}
+message AcknowledgeCommandRequest {
+  string request_id = 1;
+}
+message CommandRequest {
+  enum Backend {
+    VVA = 0;
+    VehicleAPI = 1;
+  }
+  string vin = 1;
+  string request_id = 7;
+  .proto.CommandRequest.Backend backend = 36;
+  oneof command {
+    .proto.AuxheatStart auxheat_start = 2;
+    .proto.AuxheatStop auxheat_stop = 3;
+    .proto.AuxheatConfigure auxheat_configure = 4;
+    .proto.DoorsLock doors_lock = 5;
+    .proto.DoorsUnlock doors_unlock = 6;
+    .proto.SunroofOpen sunroof_open = 9;
+    .proto.SunroofClose sunroof_close = 10;
+    .proto.SunroofLift sunroof_lift = 11;
+    .proto.SunroofMove sunroof_move = 47;
+    .proto.WindowsOpen windows_open = 12;
+    .proto.WindowsClose windows_close = 13;
+    .proto.WindowsVentilate windows_ventilate = 43;
+    .proto.WindowsMove windows_move = 44;
+    .proto.EngineStart engine_start = 19;
+    .proto.EngineStop engine_stop = 20;
+    .proto.ZEVPreconditioningStart zev_preconditioning_start = 21;
+    .proto.ZEVPreconditioningStop zev_preconditioning_stop = 22;
+    .proto.ZEVPreconditioningConfigure zev_precondition_configure = 25;
+    .proto.ZEVPreconditioningConfigureSeats zev_precondition_configure_seats = 26;
+    .proto.SpeedalertStart speedalert_start = 23;
+    .proto.SpeedalertStop speedalert_stop = 24;
+    .proto.BatteryChargeProgramConfigure battery_charge_program = 27;
+    .proto.BatteryMaxSocConfigure battery_max_soc = 28;
+    .proto.ChargeProgramConfigure charge_program_configure = 34;
+    .proto.ChargeControlConfigure charge_control_configure = 40;
+    .proto.TemperatureConfigure temperature_configure = 32;
+    .proto.WeekProfileConfigure week_profile_configure = 33;
+    .proto.WeekProfileConfigureV2 week_profile_configure_v2 = 41;
+    .proto.SigPosStart sigpos_start = 35;
+    .proto.TheftalarmDeselectDamagedetection theftalarm_deselect_damagedetection = 14;
+    .proto.TheftalarmDeselectInterior theftalarm_deselect_interior = 15;
+    .proto.TheftalarmDeselectTow theftalarm_deselect_tow = 16;
+    .proto.TheftalarmSelectDamagedetection theftalarm_select_damagedetection = 17;
+    .proto.TheftalarmSelectInterior theftalarm_select_interior = 18;
+    .proto.TheftalarmSelectTow theftalarm_select_tow = 37;
+    .proto.TheftalarmStart theftalarm_start = 38;
+    .proto.TheftalarmStop theftalarm_stop = 39;
+    .proto.ChargeFlapUnlock charge_flap_unlock = 45;
+    .proto.DeactivateVehicleKeys deactivate_vehicle_keys = 48;
+    .proto.ActivateVehicleKeys activate_vehicle_keys = 49;
+    .proto.ChargingBreakClocktimerConfigure chargingbreak_clocktimer_configure = 50;
+    .proto.ChargeFlapOpen charge_flap_open = 59;
+    .proto.ChargeCouplerStop charge_coupler_stop = 60;
+    .proto.SelectiveKeyDeactivation selective_key_deactivation = 61;
+    .proto.SunroofBlindsMove sunroof_blinds_move = 62;
+    .proto.WindowBlindsMove window_blinds_move = 63;
+    .proto.ChildPresenceDetectionDeactivateAlarm child_presence_detection_deactivate_alarm = 65;
+    .proto.InteriorMonitoringTakePicture interior_monitoring_take_picture = 66;
+    .proto.ExteriorMonitoringTakePicture exterior_monitoring_take_picture = 67;
+    .proto.RemoteUpdateStart remote_update_start = 68;
+    .proto.TheftAlarmSelectPictureTaking theftalarm_select_picture_taking = 69;
+    .proto.TheftAlarmDeselectPictureTaking theftalarm_deselect_picture_taking = 70;
+    .proto.ClockTimerConfigure clock_timer_configure = 71;
+    .proto.ChargingConfigure charging_configure = 72;
+    .proto.ChildPresenceDetectionTakePicture child_presence_detection_take_picture = 73;
+    .proto.StagemodeStart stagemode_start = 74;
+    .proto.StagemodeStop stagemode_stop = 75;
+    .proto.HvBatteryStartConditioning hv_battery_start_conditioning = 76;
+    .proto.HvBatteryStopConditioning hv_battery_stop_conditioning = 77;
+    .proto.RemoteSeatBalletConfigure remote_seat_ballet_configure = 78;
+  }
+}
+message ChargingConfigure {
+  enum Action {
+    NO_ACTION_SELECTED = 0;
+    START = 1;
+    PAUSE = 2;
+    RESUME = 3;
+    STOP = 4;
+  }
+  enum DcChargingProfile {
+    NO_DC_CHARGING_PROFILE_SELECTED = 0;
+    STANDARD = 1;
+    SILENT_ECO = 2;
+    ULTRAFAST = 3;
+    PITSTOP = 4;
+    FAST_ECO_1 = 5;
+    FAST_ECO_2 = 6;
+  }
+  enum SohCalibrationActivation {
+    NO_SOH_CALIBRATION_ACTIVATION_SELECTED = 0;
+    ON = 1;
+    OFF = 2;
+  }
+  enum BptRequest {
+    NO_BPT_REQUEST_SELECTED = 0;
+    BPT_REQUEST_V2X_DISABLED = 1;
+    BPT_REQUEST_V2X_EXTERNAL_CONTROL_ENABLED = 2;
+    BPT_REQUEST_V2X_VEHICLE_CONTROL_ENABLED = 3;
+  }
+  enum EmergencyPowerSupply {
+    NO_EMERGENCY_POWER_SUPPLY_SELECTED = 0;
+    EMERGENCY_POWER_SUPPLY_OFF = 1;
+    EMERGENCY_POWER_SUPPLY_ON = 2;
+  }
+  enum ActionEvsePairing {
+    NO_ACTION_EVSE_PAIRING_SELECTED = 0;
+    ACTION_EVSE_PAIRING_START = 1;
+    ACTION_EVSE_PAIRING_STOP = 2;
+  }
+  message ChargeSchedule {
+    enum UseCaseId {
+      NO_USE_CASE_SELECTED = 0;
+      MERCEDES_INTELLIGENT_CHARGING = 1;
+      BETA_COMMUNITY_CHARGING = 2;
+      SOLAR_CHARGING = 3;
+      GREEN_CHARGING = 4;
+      EFFICIENT_CHARGING = 5;
+      ECO_FRIENDLY_CHARGING = 6;
+      SUSTAINABLE_CHARGING = 7;
+      INTELLIGENT_CHARGING = 8;
+      WORKPLACE_CHARGING_PLAN = 9;
+      HOME_CHARGING_PLAN = 10;
+      FLEET_MANAGED_CHARGING = 11;
+      PRICE_OPTIMIZED_CHARGING = 12;
+      BATTERY_FRIENDLY_CHARGING = 13;
+      EXTERNAL_NOISE_OPTIMIZED_CHARGING = 14;
+      VIDEO_WATCHING_OPTIMIZED_CHARGING = 15;
+      TIME_CONTROLLED_CHARGING = 16;
+      PEAK_SHAVING_CHARGING = 17;
+      DYNAMIC_LOAD_BALANCED_CHARGING = 18;
+      BUSINESS_SPECIFIC_CHARGING = 19;
+      PREFERRED_CHARGING_TIMES = 20;
+      ENPAL = 21;
+      TIBBER = 22;
+      THE_MOBILITY_HOUSE = 23;
+      AWATTAR = 24;
+      TRONITY = 25;
+      DPD = 26;
+      DEUTSCHE_POST = 27;
+      SMART_CHARGING = 28;
+    }
+    enum OfflineMode {
+      NO_OFFLINE_MODE_SELECTED = 0;
+      OFFLINE_MODE_OFF = 1;
+      OFFLINE_MODE_ON = 2;
+    }
+    message Schedule {
+      .google.protobuf.Int32Value duration = 1;
+      .google.protobuf.FloatValue power = 2;
+    }
+    repeated .proto.ChargingConfigure.ChargeSchedule.Schedule schedule = 1;
+    .google.protobuf.Int64Value start_time = 2;
+    .google.protobuf.Int32Value schedule_id = 3;
+    .proto.ChargingConfigure.ChargeSchedule.UseCaseId use_case_id = 4;
+    .proto.ChargingConfigure.ChargeSchedule.OfflineMode offline_mode = 5;
+  }
+  .proto.ChargingConfigure.Action action = 1;
+  .proto.ChargingConfigure.DcChargingProfile dc_charging_profile = 2;
+  .google.protobuf.Int32Value charging_program = 3;
+  repeated .google.protobuf.Int32Value inlet_id = 4;
+  .google.protobuf.Int32Value max_soc = 5;
+  .google.protobuf.Int32Value min_soc = 6;
+  .google.protobuf.Int32Value target_soc = 9;
+  .google.protobuf.Int64Value target_time = 10;
+  .proto.ChargingConfigure.SohCalibrationActivation soh_calibration_activation = 11;
+  .proto.ChargingConfigure.ChargeSchedule chargeSchedule = 13;
+  .google.protobuf.Int32Value charging_location_id = 14;
+  .proto.ChargingConfigure.BptRequest bpt_request = 15;
+  .proto.ChargingConfigure.EmergencyPowerSupply emergency_power_supply = 16;
+  .proto.ChargingConfigure.ActionEvsePairing action_evse_pairing = 17;
+}
+message HvBatteryStartConditioning {
+}
+message HvBatteryStopConditioning {
+}
+message RemoteSeatBalletConfigure {
+  enum PresetPosition {
+    UNKNOWN = 0;
+    BAGGAGE_MODE = 7;
+    STANDARD_MODE = 39;
+    EXECUTIVE_MODE = 45;
+    PEOPLE_AND_BAGGAGE_MODE = 47;
+  }
+  .proto.RemoteSeatBalletConfigure.PresetPosition preset_position = 1;
+}
+message DeactivateVehicleKeys {
+  string pin = 1;
+  int64 expiration_unix = 2;
+  string expiration_seconds = 3;
+  string expiration_milliseconds = 4;
+}
+message ActivateVehicleKeys {
+  string pin = 1;
+  int64 expiration_unix = 2;
+  string expiration_seconds = 3;
+  string expiration_milliseconds = 4;
+}
+message AuxheatStart {
+}
+message AuxheatStop {
+}
+message AuxheatConfigure {
+  enum Selection {
+    NO_SELECTION = 0;
+    TIME_1 = 1;
+    TIME_2 = 2;
+    TIME_3 = 3;
+  }
+  .proto.AuxheatConfigure.Selection time_selection = 1;
+  int32 time_1 = 2;
+  int32 time_2 = 3;
+  int32 time_3 = 4;
+}
+message DoorsLock {
+  repeated .proto.Door doors = 1;
+}
+message DoorsUnlock {
+  string pin = 1;
+  repeated .proto.Door doors = 2;
+}
+message EngineStart {
+  string pin = 1;
+}
+message EngineStop {
+}
+message SunroofOpen {
+  string pin = 1;
+}
+message SunroofClose {
+}
+message SunroofLift {
+  string pin = 1;
+}
+message SunroofMove {
+  string pin = 1;
+  .google.protobuf.Int32Value sunroof = 2;
+  .google.protobuf.Int32Value sunroof_blind_front = 3;
+  .google.protobuf.Int32Value sunroof_blind_rear = 4;
+}
+message WindowsOpen {
+  string pin = 1;
+}
+message WindowsClose {
+}
+message WindowsVentilate {
+  string pin = 1;
+}
+message WindowsMove {
+  string pin = 1;
+  .google.protobuf.Int32Value front_left = 2;
+  .google.protobuf.Int32Value front_right = 3;
+  .google.protobuf.Int32Value rear_blind = 4;
+  .google.protobuf.Int32Value rear_left = 5;
+  .google.protobuf.Int32Value rear_left_blind = 6;
+  .google.protobuf.Int32Value rear_right = 7;
+  .google.protobuf.Int32Value rear_right_blind = 8;
+}
+message SpeedalertStart {
+  int32 threshold = 1;
+  int64 alert_end_time = 2;
+}
+message SpeedalertStop {
+}
+message ZEVPreconditioningStart {
+  int32 departure_time = 1;
+  .proto.ZEVPreconditioningType type = 2;
+}
+message ZEVPreconditioningStop {
+  .proto.ZEVPreconditioningType type = 2;
+}
+message ZEVPreconditioningConfigure {
+  enum DepartureTimeMode {
+    DISABLED = 0;
+    SINGLE_DEPARTURE = 1;
+    WEEKLY_DEPARTURE = 2;
+  }
+  .proto.ZEVPreconditioningConfigure.DepartureTimeMode departure_time_mode = 1;
+  int32 departure_time = 3;
+}
+message ZEVPreconditioningConfigureSeats {
+  reserved 1;
+  reserved 2;
+  reserved 3;
+  reserved 4;
+  .google.protobuf.BoolValue front_left = 5;
+  .google.protobuf.BoolValue front_right = 6;
+  .google.protobuf.BoolValue rear_left = 7;
+  .google.protobuf.BoolValue rear_right = 8;
+  string user_profile = 9;
+}
+message BatteryChargeProgramConfigure {
+  enum ChargeProgram {
+    DEFAULT = 0;
+    INSTANT = 1;
+  }
+  .proto.BatteryChargeProgramConfigure.ChargeProgram charge_program = 1;
+}
+message BatteryMaxSocConfigure {
+  int32 max_soc = 1;
+}
+message ChargeProgramConfigure {
+  enum ChargeProgram {
+    DEFAULT_CHARGE_PROGRAM = 0;
+    HOME_CHARGE_PROGRAM = 2;
+    WORK_CHARGE_PROGRAM = 3;
+  }
+  .proto.ChargeProgramConfigure.ChargeProgram charge_program = 1;
+  .google.protobuf.Int32Value max_soc = 2;
+  .google.protobuf.BoolValue auto_unlock = 3;
+  .google.protobuf.BoolValue location_based_charging = 4;
+  .google.protobuf.BoolValue clock_timer = 6;
+  .google.protobuf.BoolValue eco_charging = 7;
+}
+message ChargeControlConfigure {
+  .google.protobuf.BoolValue bi_charging_enabled = 1;
+  .google.protobuf.FloatValue charging_power = 2;
+  .google.protobuf.Int32Value min_soc = 3;
+}
+message ChargeOptConfigure {
+  message Tariff {
+    enum Rate {
+      INVALID_PRICE = 0;
+      LOW_PRICE = 33;
+      NORMAL_PRICE = 44;
+      HIGH_PRICE = 66;
+    }
+    .proto.ChargeOptConfigure.Tariff.Rate rate = 1;
+    int32 time = 2;
+  }
+  repeated .proto.ChargeOptConfigure.Tariff weekday_tariff = 1;
+  repeated .proto.ChargeOptConfigure.Tariff weekend_tariff = 2;
+}
+message ChargeOptStart {
+}
+message ChargeOptStop {
+}
+message TemperatureConfigure {
+  message TemperaturePoint {
+    enum Zone {
+      option allow_alias = true;
+      unknown = 0;
+      frontLeft = 1;
+      frontRight = 2;
+      frontCenter = 3;
+      rearLeft = 4;
+      rearRight = 5;
+      rearCenter = 6;
+      rear2Left = 7;
+      rear2Right = 8;
+      rear2Center = 9;
+      UNKNOWN_ZONE = 0;
+      FRONT_LEFT = 1;
+      FRONT_RIGHT = 2;
+      FRONT_CENTER = 3;
+      REAR_LEFT = 4;
+      REAR_RIGHT = 5;
+      REAR_CENTER = 6;
+      REAR_2_LEFT = 7;
+      REAR_2_RIGHT = 8;
+      REAR_2_CENTER = 9;
+    }
+    reserved 2;
+    .proto.TemperatureConfigure.TemperaturePoint.Zone zone = 1;
+    double temperature_in_celsius = 3;
+    .google.protobuf.BoolValue active = 4;
+  }
+  repeated .proto.TemperatureConfigure.TemperaturePoint temperature_points = 1;
+  string user_profile = 2;
+  .google.protobuf.BoolValue sync_zones_to_driver = 3;
+}
+message WeekProfileConfigure {
+  message WeeklySetHU {
+    enum Day {
+      MONDAY = 0;
+      TUESDAY = 1;
+      WEDNESDAY = 2;
+      THURSDAY = 3;
+      FRIDAY = 4;
+      SATURDAY = 5;
+      SUNDAY = 6;
+    }
+    .proto.WeekProfileConfigure.WeeklySetHU.Day day = 1;
+    int32 time = 2;
+  }
+  repeated .proto.WeekProfileConfigure.WeeklySetHU weekly_set_hu = 1;
+}
+message WeekProfileConfigureV2 {
+  repeated .proto.TimeProfile time_profiles = 1;
+}
+message TimeProfile {
+  enum ScheduleType {
+    NO_SELECTION = 0;
+    RECURRING = 1;
+    NON_RECURRING = 2;
+    NON_RECURRING_AUTO_DELETE = 3;
+  }
+  message ActionList {
+    .google.protobuf.BoolValue charging = 1;
+    .google.protobuf.BoolValue precond = 2;
+    .google.protobuf.BoolValue battery_precond = 3;
+  }
+  .google.protobuf.Int32Value identifier = 1;
+  .google.protobuf.Int32Value hour = 2;
+  .google.protobuf.Int32Value minute = 3;
+  repeated .proto.TimeProfileDay days = 4;
+  .google.protobuf.BoolValue active = 5;
+  int32 application_identifier = 6;
+  repeated .proto.TimeProfile.ActionList action_list = 7;
+  .proto.TimeProfile.ScheduleType schedule_type = 8;
+  string user_profile = 9;
+}
+message SigPosStart {
+  enum HornType {
+    HORN_OFF = 0;
+    HORN_LOW_VOLUME = 1;
+    HORN_HIGH_VOLUME = 2;
+  }
+  enum LightType {
+    LIGHT_OFF = 0;
+    DIPPED_HEAD_LIGHT = 1;
+    WARNING_LIGHT = 2;
+  }
+  enum SigposType {
+    LIGHT_ONLY = 0;
+    HORN_ONLY = 1;
+    LIGHT_AND_HORN = 2;
+    PANIC_ALARM = 3;
+  }
+  int32 horn_repeat = 1;
+  .proto.SigPosStart.HornType horn_type = 2;
+  .proto.SigPosStart.LightType light_type = 3;
+  int32 sigpos_duration = 4;
+  .proto.SigPosStart.SigposType sigpos_type = 5;
+}
+message TheftalarmConfirmDamagedetection {
+}
+message TheftalarmDeselectDamagedetection {
+}
+message TheftalarmDeselectInterior {
+}
+message TheftalarmDeselectTow {
+}
+message TheftalarmSelectDamagedetection {
+}
+message TheftalarmSelectInterior {
+}
+message TheftalarmSelectTow {
+}
+message TheftalarmStart {
+  int32 alarm_duration_in_seconds = 1;
+}
+message TheftalarmStop {
+}
+message AutomaticValetParkingActivate {
+  string booking_id = 1;
+  .proto.DriveType drive_type = 2;
+}
+message ChargeFlapUnlock {
+  string pin = 1;
+}
+message ChargeCouplerUnlock {
+}
+message ChargingBreakClocktimerConfigure {
+  repeated .proto.ChargingBreakClockTimerConfigureEntry chargingbreak_clocktimer_configure_entry = 1;
+}
+message ChargingBreakClockTimerConfigureEntry {
+  .proto.ChargingBreakClockTimerEntryStatus action = 1;
+  int32 endTimeHour = 2;
+  int32 endTimeMinute = 3;
+  int32 startTimeHour = 4;
+  int32 startTimeMinute = 5;
+  int32 timerId = 6;
+}
+message WiperHealthReset {
+}
+message SelectiveKeyDeactivation {
+  string pin = 1;
+}
+message SunroofBlindsMove {
+  .google.protobuf.Int32Value sunroof_blind_front = 1;
+  .google.protobuf.Int32Value sunroof_blind_rear = 2;
+}
+message WindowBlindsMove {
+  .google.protobuf.Int32Value rear_blind = 1;
+  .google.protobuf.Int32Value rear_left_blind = 2;
+  .google.protobuf.Int32Value rear_right_blind = 3;
+}
+message ChildPresenceDetectionDeactivateAlarm {
+}
+message ChildPresenceDetectionTakePicture {
+}
+message InteriorMonitoringTakePicture {
+}
+message ExteriorMonitoringTakePicture {
+}
+message RemoteUpdateStart {
+  string pkg_id = 1;
+  string release_pkg_id = 2;
+}
+message TheftAlarmSelectPictureTaking {
+}
+message TheftAlarmDeselectPictureTaking {
+}
+message StagemodeStart {
+}
+message StagemodeStop {
+}
+message ClockTimerConfigure {
+  repeated .proto.ClockTimerConfigureEntry clock_timer_configure_entry = 1;
+}
+message ClockTimerConfigureEntry {
+  enum Action {
+    DELETE = 0;
+    DEACTIVATE = 1;
+    ACTIVATE = 2;
+  }
+  enum Day {
+    MONDAY = 0;
+    TUESDAY = 1;
+    WEDNESDAY = 2;
+    THURSDAY = 3;
+    FRIDAY = 4;
+    SATURDAY = 5;
+    SUNDAY = 6;
+  }
+  .proto.ClockTimerConfigureEntry.Action action = 1;
+  int64 end_time_hour = 2;
+  int64 end_time_min = 3;
+  int64 start_time_hour = 4;
+  int64 start_time_min = 5;
+  int64 timer_id = 6;
+  repeated .proto.ClockTimerConfigureEntry.Day days = 7;
+}
+message ChargeFlapOpen {
+  string pin = 1;
+}
+message ChargeCouplerStop {
+  string pin = 1;
+}

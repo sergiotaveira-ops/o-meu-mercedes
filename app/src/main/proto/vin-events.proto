@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package proto;
+option java_package = "pt.sergiotaveira.mercedes.proto";
+option java_outer_classname = "VinEventsProto";
+option java_multiple_files = true;
+
+
+message VINUpdate {
+  repeated string addedVINs = 1;
+  repeated string deletedVINs = 2;
+}
