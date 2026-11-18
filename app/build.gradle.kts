@@ -49,3 +49,7 @@ dependencies {
     testImplementation(libs.coroutines.test)
     testImplementation(libs.okhttp.mockwebserver)
 }
+
+tasks.withType<Test>().configureEach {
+    testLogging { events("passed", "failed", "skipped") }
+}
