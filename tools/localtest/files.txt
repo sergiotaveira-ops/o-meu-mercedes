@@ -12,6 +12,7 @@ app/src/main/java/pt/sergiotaveira/mercedes/api/MbSocket.kt
 app/src/main/java/pt/sergiotaveira/mercedes/data/CarRepository.kt
 app/src/main/java/pt/sergiotaveira/mercedes/ui/Messages.kt
 app/src/main/java/pt/sergiotaveira/mercedes/ui/CarController.kt
+app/src/main/java/pt/sergiotaveira/mercedes/ui/Format.kt
 app/src/test/java/pt/sergiotaveira/mercedes/ProtoSmokeTest.kt
 app/src/test/java/pt/sergiotaveira/mercedes/api/FakeTransport.kt
 app/src/test/java/pt/sergiotaveira/mercedes/api/PkceTest.kt
@@ -21,3 +22,4 @@ app/src/test/java/pt/sergiotaveira/mercedes/api/CommandsTest.kt
 app/src/test/java/pt/sergiotaveira/mercedes/api/ProtoAdapterTest.kt
 app/src/test/java/pt/sergiotaveira/mercedes/api/MbSocketTest.kt
 app/src/test/java/pt/sergiotaveira/mercedes/ui/CarControllerTest.kt
+app/src/test/java/pt/sergiotaveira/mercedes/ui/FormatTest.kt
