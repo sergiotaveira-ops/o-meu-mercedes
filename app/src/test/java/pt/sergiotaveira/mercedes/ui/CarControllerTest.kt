@@ -35,6 +35,7 @@ class FakeCarRepository : CarRepository {
     var lockCalls = 0
     var lastPin: String? = null
     var climate: Boolean? = null
+    var temp: Double? = null
     var refreshes = 0
     override suspend fun login(email: String, password: String) { loginError?.let { throw it }; loggedIn = true }
     override fun isLoggedIn() = loggedIn
@@ -42,6 +43,7 @@ class FakeCarRepository : CarRepository {
     override suspend fun lock(): CommandResult { lockCalls++; return nextResult.await() }
     override suspend fun unlock(pin: String): CommandResult { lastPin = pin; return nextResult.await() }
     override suspend fun setClimate(on: Boolean): CommandResult { climate = on; return nextResult.await() }
+    override suspend fun setTemperature(celsius: Double): CommandResult { temp = celsius; return nextResult.await() }
     override fun logout() { loggedIn = false }
 }
 
@@ -135,6 +137,15 @@ class CarControllerTest {
     fun connectionIsReflected() = run { c, repo ->
         repo.connection.value = ConnStatus.CONNECTED
         waitFor { c.ui.value.connection == ConnStatus.CONNECTED }
+    }
+
+    @Test
+    fun setTemperatureSendsValueAndShowsMessage() = run { c, repo ->
+        c.setTemperature(22.0); waitFor { repo.temp != null }
+        assertEquals(22.0, repo.temp!!, 0.001)
+        repo.nextResult.complete(CommandResult.Success)
+        waitFor { c.ui.value.message != null }
+        assertEquals(Messages.TEMP_OK, c.ui.value.message)
     }
 
     @Test

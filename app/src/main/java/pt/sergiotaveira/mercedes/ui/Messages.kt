@@ -10,6 +10,7 @@ object Messages {
     const val UNLOCKED_OK = "Carro destrancado."
     const val CLIMATE_ON_OK = "Pré-climatização ligada."
     const val CLIMATE_OFF_OK = "Pré-climatização desligada."
+    const val TEMP_OK = "Temperatura definida."
     const val SESSION_EXPIRED = "A sessão expirou. Entra de novo."
     const val NO_CAR = "Ainda não recebi dados do carro. Puxa para atualizar."
     fun refused(reason: String) = "O carro recusou o comando ($reason)."

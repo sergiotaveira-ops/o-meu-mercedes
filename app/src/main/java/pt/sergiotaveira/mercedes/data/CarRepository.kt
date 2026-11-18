@@ -30,6 +30,7 @@ interface CarRepository {
     suspend fun lock(): CommandResult
     suspend fun unlock(pin: String): CommandResult
     suspend fun setClimate(on: Boolean): CommandResult
+    suspend fun setTemperature(celsius: Double): CommandResult
     fun logout()
 }
 
@@ -74,6 +75,9 @@ class MbCarRepository(
     override suspend fun unlock(pin: String) = command { v, r -> Commands.unlock(v, pin, r) }
     override suspend fun setClimate(on: Boolean) =
         command { v, r -> if (on) Commands.climateStart(v, r) else Commands.climateStop(v, r) }
+
+    override suspend fun setTemperature(celsius: Double) =
+        command { v, r -> Commands.setTemperature(v, celsius, r) }
 
     override fun logout() {
         socket.disconnect()

@@ -11,7 +11,7 @@ import pt.sergiotaveira.mercedes.api.CommandResult
 import pt.sergiotaveira.mercedes.api.ConnStatus
 import pt.sergiotaveira.mercedes.data.CarRepository
 
-enum class Action { LOCK, UNLOCK, CLIMATE, REFRESH, LOGIN }
+enum class Action { LOCK, UNLOCK, CLIMATE, TEMPERATURE, REFRESH, LOGIN }
 
 data class UiState(
     val loggedIn: Boolean,
@@ -77,6 +77,10 @@ class CarController(private val repo: CarRepository, private val scope: Coroutin
     fun toggleClimate() = run(Action.CLIMATE, isCommand = true) {
         val on = _ui.value.car?.climateOn != true
         commandMessage(repo.setClimate(on), if (on) Messages.CLIMATE_ON_OK else Messages.CLIMATE_OFF_OK)
+    }
+
+    fun setTemperature(celsius: Double) = run(Action.TEMPERATURE, isCommand = true) {
+        commandMessage(repo.setTemperature(celsius), Messages.TEMP_OK)
     }
 
     fun messageShown() = _ui.update { it.copy(message = null) }
