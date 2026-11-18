@@ -24,6 +24,13 @@ class MbAuthTest {
     }
 
     @Test
+    fun loginStartsAFreshSession() = runBlocking {
+        val t = FakeTransport.happyLogin()
+        MbAuth(t, InMemoryTokenStore(), clock = { now }).login("a@b.pt", "pw")
+        assertEquals(1, t.sessions)
+    }
+
+    @Test
     fun wrongPasswordThrowsWrongCredentials() {
         val t = FakeTransport.happyLogin().apply { on("/ciam/auth/login/pass") { HttpResponse(401, it.url, emptyMap(), "{}") } }
         assertFailsWith<AuthError.WrongCredentials> { runBlocking { MbAuth(t, InMemoryTokenStore(), clock = { now }).login("a@b.pt", "x") } }

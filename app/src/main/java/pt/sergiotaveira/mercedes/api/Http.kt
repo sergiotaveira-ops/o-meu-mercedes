@@ -13,4 +13,7 @@ data class HttpResponse(val status: Int, val finalUrl: String, val headers: Map<
 
 fun interface HttpTransport {
     suspend fun execute(request: HttpRequest): HttpResponse
+
+    /** Start a clean cookie/session context for a new login. Each login must not reuse the previous one's cookies. */
+    fun newSession() {}
 }

@@ -26,9 +26,16 @@ class LoginCookieJar(deviceId: String) : CookieJar {
     @Synchronized override fun loadForRequest(url: HttpUrl): List<Cookie> = cookies.filter { it.matches(url) }
 }
 
-class OkHttpTransport(base: OkHttpClient, deviceId: String) : HttpTransport {
-    private val client = base.newBuilder().cookieJar(LoginCookieJar(deviceId)).build()
-    private val noRedirect = client.newBuilder().followRedirects(false).followSslRedirects(false).build()
+class OkHttpTransport(private val base: OkHttpClient, private val deviceId: String) : HttpTransport {
+    @Volatile private var client = clientWithFreshCookies()
+    @Volatile private var noRedirect = client.newBuilder().followRedirects(false).followSslRedirects(false).build()
+
+    private fun clientWithFreshCookies() = base.newBuilder().cookieJar(LoginCookieJar(deviceId)).build()
+
+    override fun newSession() {
+        client = clientWithFreshCookies()
+        noRedirect = client.newBuilder().followRedirects(false).followSslRedirects(false).build()
+    }
 
     override suspend fun execute(request: HttpRequest): HttpResponse = withContext(Dispatchers.IO) {
         val contentType = request.headers.entries.firstOrNull { it.key.equals("content-type", true) }?.value

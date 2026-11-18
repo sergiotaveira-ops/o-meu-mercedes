@@ -38,6 +38,7 @@ class MbAuth(
     }
 
     private suspend fun loginLocked(email: String, password: String): Tokens {
+        http.newSession()
         val verifier = Pkce.verifier()
         val base = urls.login
 

@@ -3,7 +3,9 @@ package pt.sergiotaveira.mercedes.api
 /** Test double: answers by URL path; records every request. */
 class FakeTransport(private val routes: MutableMap<String, (HttpRequest) -> HttpResponse> = mutableMapOf()) : HttpTransport {
     val requests = mutableListOf<HttpRequest>()
+    var sessions = 0
     fun on(path: String, handler: (HttpRequest) -> HttpResponse) { routes[path] = handler }
+    override fun newSession() { sessions++ }
     override suspend fun execute(request: HttpRequest): HttpResponse {
         requests += request
         val path = request.url.substringAfter("://").substringAfter("/", "").substringBefore("?").let { "/$it" }
