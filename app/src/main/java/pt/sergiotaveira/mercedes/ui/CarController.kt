@@ -8,6 +8,7 @@ import kotlinx.coroutines.launch
 import pt.sergiotaveira.mercedes.api.AuthError
 import pt.sergiotaveira.mercedes.api.CarState
 import pt.sergiotaveira.mercedes.api.CommandResult
+import pt.sergiotaveira.mercedes.api.ConnStatus
 import pt.sergiotaveira.mercedes.data.CarRepository
 
 enum class Action { LOCK, UNLOCK, CLIMATE, REFRESH, LOGIN }
@@ -17,6 +18,9 @@ data class UiState(
     val car: CarState? = null,
     val busy: Set<Action> = emptySet(),
     val message: String? = null,
+    /** Result of the last command; unlike [message] it stays on screen. */
+    val lastResult: String? = null,
+    val connection: ConnStatus = ConnStatus.DISCONNECTED,
 )
 
 /** Screen logic, free of Android classes so it runs in plain JVM tests. [CarViewModel] hosts it. */
@@ -26,6 +30,7 @@ class CarController(private val repo: CarRepository, private val scope: Coroutin
 
     init {
         scope.launch { repo.state.collect { car -> _ui.update { it.copy(car = car) } } }
+        scope.launch { repo.connection.collect { c -> _ui.update { it.copy(connection = c) } } }
         scope.launch {
             repo.errors.collect { msg ->
                 _ui.update { it.copy(message = msg, loggedIn = if (msg == Messages.SESSION_EXPIRED) false else it.loggedIn) }
@@ -34,14 +39,14 @@ class CarController(private val repo: CarRepository, private val scope: Coroutin
         if (repo.isLoggedIn()) repo.refresh()
     }
 
-    private fun run(action: Action, block: suspend () -> String?) {
+    private fun run(action: Action, isCommand: Boolean = false, block: suspend () -> String?) {
         val started = synchronized(this) {
             if (action in _ui.value.busy) false else { _ui.update { it.copy(busy = it.busy + action) }; true }
         }
         if (!started) return
         scope.launch {
             val msg = try { block() } finally { _ui.update { it.copy(busy = it.busy - action) } }
-            if (msg != null) _ui.update { it.copy(message = msg) }
+            if (msg != null) _ui.update { it.copy(message = msg, lastResult = if (isCommand) msg else it.lastResult) }
         }
     }
 
@@ -65,11 +70,11 @@ class CarController(private val repo: CarRepository, private val scope: Coroutin
 
     fun refresh() = run(Action.REFRESH) { repo.refresh(); null }
 
-    fun lock() = run(Action.LOCK) { commandMessage(repo.lock(), Messages.LOCKED_OK) }
+    fun lock() = run(Action.LOCK, isCommand = true) { commandMessage(repo.lock(), Messages.LOCKED_OK) }
 
-    fun unlock(pin: String) = run(Action.UNLOCK) { commandMessage(repo.unlock(pin), Messages.UNLOCKED_OK) { Messages.UNLOCK_FAILED } }
+    fun unlock(pin: String) = run(Action.UNLOCK, isCommand = true) { commandMessage(repo.unlock(pin), Messages.UNLOCKED_OK) { Messages.UNLOCK_FAILED } }
 
-    fun toggleClimate() = run(Action.CLIMATE) {
+    fun toggleClimate() = run(Action.CLIMATE, isCommand = true) {
         val on = _ui.value.car?.climateOn != true
         commandMessage(repo.setClimate(on), if (on) Messages.CLIMATE_ON_OK else Messages.CLIMATE_OFF_OK)
     }

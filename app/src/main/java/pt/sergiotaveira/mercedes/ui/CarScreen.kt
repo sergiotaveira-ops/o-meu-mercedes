@@ -76,6 +76,7 @@ fun CarScreen(ui: UiState, controller: CarController) {
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 val car = ui.car
+                StatusLine(ui.connection, hasCar = car != null)
                 if (car == null) {
                     Card(Modifier.fillMaxWidth()) {
                         Row(Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -86,7 +87,7 @@ fun CarScreen(ui: UiState, controller: CarController) {
                     }
                 } else {
                     BatteryCard(car, now)
-                    DoorsCard(car.lock, ui.busy, onLock = controller::lock, onUnlock = { askPin = true })
+                    DoorsCard(car.lock, ui.busy, ui.lastResult, onLock = controller::lock, onUnlock = { askPin = true })
                     ClimateCard(car.climateOn, Action.CLIMATE in ui.busy, onToggle = controller::toggleClimate)
                     LocationCard(car.lat, car.lon)
                     Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {

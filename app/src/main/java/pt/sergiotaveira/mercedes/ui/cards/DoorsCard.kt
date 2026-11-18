@@ -19,7 +19,7 @@ import pt.sergiotaveira.mercedes.api.LockState
 import pt.sergiotaveira.mercedes.ui.Action
 
 @Composable
-fun DoorsCard(lock: LockState, busy: Set<Action>, onLock: () -> Unit, onUnlock: () -> Unit) {
+fun DoorsCard(lock: LockState, busy: Set<Action>, lastResult: String?, onLock: () -> Unit, onUnlock: () -> Unit) {
     val working = Action.LOCK in busy || Action.UNLOCK in busy
     Card(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(20.dp)) {
@@ -32,6 +32,11 @@ fun DoorsCard(lock: LockState, busy: Set<Action>, onLock: () -> Unit, onUnlock: 
                 },
                 style = MaterialTheme.typography.headlineSmall,
             )
+            if (working) {
+                Text("A enviar ao carro… pode demorar até 1 minuto.", style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 8.dp))
+            } else if (lastResult != null) {
+                Text("Último comando: $lastResult", style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 8.dp))
+            }
             Row(Modifier.fillMaxWidth().padding(top = 12.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Button(onClick = onLock, enabled = !working, modifier = Modifier.weight(1f)) {
                     if (Action.LOCK in busy) CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp) else Text("Trancar")

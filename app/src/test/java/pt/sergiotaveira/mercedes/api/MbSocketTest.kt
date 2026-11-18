@@ -139,6 +139,19 @@ class MbSocketTest {
     }
 
     @Test
+    fun connectionStatusFollowsSocket() = withSocket { s, ws ->
+        assertEquals(ConnStatus.DISCONNECTED, s.status.value)
+        s.connect(); waitFor { s.status.value == ConnStatus.CONNECTED }
+        s.disconnect()
+        assertEquals(ConnStatus.DISCONNECTED, s.status.value)
+    }
+
+    @Test
+    fun blockedStatusOn429() = withSocket(FakeWs().apply { failWith = 429 }) { s, _ ->
+        s.connect(); waitFor { s.status.value == ConnStatus.BLOCKED }
+    }
+
+    @Test
     fun otherFailureReconnects() = withSocket(FakeWs().apply { failWith = 500 }) { s, ws ->
         s.connect()
         waitFor { ws.opened.size >= 3 }

@@ -52,6 +52,8 @@ sealed class CommandResult {
     data object Timeout : CommandResult()
 }
 
+enum class ConnStatus { DISCONNECTED, CONNECTING, CONNECTED, BLOCKED, AUTH_EXPIRED, ERROR }
+
 sealed class SocketError {
     data object Blocked : SocketError()
     data object AuthExpired : SocketError()
@@ -75,6 +77,8 @@ class MbSocket(
     val errors: Flow<SocketError> = _errors.receiveAsFlow()
 
     private val open = MutableStateFlow(false)
+    private val _status = MutableStateFlow(ConnStatus.DISCONNECTED)
+    val status: StateFlow<ConnStatus> = _status
     private val pending = ConcurrentHashMap<String, CompletableDeferred<CommandResult>>()
     private val sessionId = UUID.randomUUID().toString()
     @Volatile private var conn: WsConnection? = null
@@ -88,6 +92,7 @@ class MbSocket(
         if (connecting || conn != null) return
         wanted = true
         connecting = true
+        _status.value = ConnStatus.CONNECTING
         val gen = generation
         scope.launch { openNow(gen) }
     }
@@ -99,6 +104,7 @@ class MbSocket(
         conn?.close()
         conn = null
         open.value = false
+        _status.value = ConnStatus.DISCONNECTED
     }
 
     suspend fun send(cmd: ClientMessage, timeoutMs: Long = 60_000): CommandResult {
@@ -123,7 +129,7 @@ class MbSocket(
         } catch (e: AuthError.Blocked) {
             fail(SocketError.Blocked); return
         } catch (e: AuthError.Network) {
-            connecting = false; _errors.trySend(SocketError.Network(e.message ?: "")); scheduleReconnect(gen); return
+            connecting = false; _status.value = ConnStatus.ERROR; _errors.trySend(SocketError.Network(e.message ?: "")); scheduleReconnect(gen); return
         } catch (e: AuthError) {
             fail(SocketError.AuthExpired); return
         }
@@ -133,6 +139,7 @@ class MbSocket(
 
     private fun fail(e: SocketError) {
         wanted = false; connecting = false; conn = null; open.value = false
+        _status.value = if (e == SocketError.Blocked) ConnStatus.BLOCKED else ConnStatus.AUTH_EXPIRED
         _errors.trySend(e)
     }
 
@@ -145,7 +152,7 @@ class MbSocket(
     }
 
     private fun listener(gen: Int) = object : WsListener {
-        override fun onOpen() { if (gen == generation) { retries = 0; connecting = false; open.value = true } }
+        override fun onOpen() { if (gen == generation) { retries = 0; connecting = false; open.value = true; _status.value = ConnStatus.CONNECTED } }
 
         override fun onMessage(bytes: ByteArray) {
             if (gen != generation) return
@@ -159,13 +166,14 @@ class MbSocket(
             when (httpCode) {
                 429 -> fail(SocketError.Blocked)
                 401, 403 -> fail(SocketError.AuthExpired)
-                else -> { connecting = false; _errors.trySend(SocketError.Network(message)); scheduleReconnect(gen) }
+                else -> { connecting = false; _status.value = ConnStatus.ERROR; _errors.trySend(SocketError.Network(message)); scheduleReconnect(gen) }
             }
         }
 
         override fun onClosed() {
             if (gen != generation) return
             conn = null; open.value = false; connecting = false
+            _status.value = ConnStatus.DISCONNECTED
             scheduleReconnect(gen)
         }
     }

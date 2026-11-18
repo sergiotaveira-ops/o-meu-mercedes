@@ -17,6 +17,7 @@ import org.junit.Test
 import pt.sergiotaveira.mercedes.api.AuthError
 import pt.sergiotaveira.mercedes.api.CarState
 import pt.sergiotaveira.mercedes.api.CommandResult
+import pt.sergiotaveira.mercedes.api.ConnStatus
 import pt.sergiotaveira.mercedes.data.CarRepository
 import java.time.Instant
 import kotlin.test.assertEquals
@@ -25,6 +26,7 @@ import kotlin.test.assertTrue
 
 class FakeCarRepository : CarRepository {
     override val state = MutableStateFlow<CarState?>(null)
+    override val connection = MutableStateFlow(ConnStatus.DISCONNECTED)
     val errorChannel = Channel<String>(Channel.BUFFERED)
     override val errors: Flow<String> = errorChannel.receiveAsFlow()
     var loggedIn = true
@@ -119,6 +121,20 @@ class CarControllerTest {
         waitFor { c.ui.value.message != null }
         c.messageShown()
         assertEquals(null, c.ui.value.message)
+    }
+
+    @Test
+    fun lastResultStaysAfterMessageShown() = run { c, repo ->
+        c.unlock("1234"); repo.nextResult.complete(CommandResult.Failed("PIN invalid"))
+        waitFor { c.ui.value.message != null }
+        c.messageShown()
+        assertEquals(Messages.UNLOCK_FAILED, c.ui.value.lastResult)
+    }
+
+    @Test
+    fun connectionIsReflected() = run { c, repo ->
+        repo.connection.value = ConnStatus.CONNECTED
+        waitFor { c.ui.value.connection == ConnStatus.CONNECTED }
     }
 
     @Test

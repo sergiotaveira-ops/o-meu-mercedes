@@ -10,6 +10,7 @@ import pt.sergiotaveira.mercedes.api.AuthError
 import pt.sergiotaveira.mercedes.api.CarState
 import pt.sergiotaveira.mercedes.api.CommandResult
 import pt.sergiotaveira.mercedes.api.Commands
+import pt.sergiotaveira.mercedes.api.ConnStatus
 import pt.sergiotaveira.mercedes.api.MbAuth
 import pt.sergiotaveira.mercedes.api.MbSocket
 import pt.sergiotaveira.mercedes.api.SocketError
@@ -19,6 +20,7 @@ import java.util.UUID
 
 interface CarRepository {
     val state: StateFlow<CarState?>
+    val connection: StateFlow<ConnStatus>
     /** Connection problems, already as user-facing Portuguese text. */
     val errors: Flow<String>
     /** @throws AuthError */
@@ -40,6 +42,8 @@ class MbCarRepository(
 ) : CarRepository {
     override val state: StateFlow<CarState?> =
         socket.states.map { it.values.firstOrNull() }.stateIn(scope, SharingStarted.Eagerly, null)
+
+    override val connection: StateFlow<ConnStatus> = socket.status
 
     override val errors: Flow<String> = socket.errors.map {
         when (it) {
