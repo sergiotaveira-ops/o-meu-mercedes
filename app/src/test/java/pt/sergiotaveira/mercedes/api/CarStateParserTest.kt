@@ -98,6 +98,14 @@ class CarStateParserTest {
     }
 
     @Test
+    fun targetTemperatureParsedAndKept() {
+        val first = merge(null, mapOf("targetTemp" to Attr(0, dbl = 21.5)))
+        assertEquals(21.5, first.targetTempCelsius)
+        val second = merge(first, mapOf("soc" to i(50)))
+        assertEquals(21.5, second.targetTempCelsius)
+    }
+
+    @Test
     fun updatedAtIsNow() {
         assertEquals(now.toInstant(), merge(null, emptyMap()).updatedAt)
     }

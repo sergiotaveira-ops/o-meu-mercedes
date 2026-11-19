@@ -7,7 +7,16 @@ import pt.sergiotaveira.mercedes.proto.VehicleStatusUpdate
 
 /** Converts both Mercedes update formats (legacy VEPUpdate and newer VehicleStatusUpdate) into parser attributes. */
 object ProtoAdapter {
-    fun attrs(u: VEPUpdate): Map<String, Attr> = u.attributesMap.mapValues { (_, v) -> attr(v) }
+    fun attrs(u: VEPUpdate): Map<String, Attr> = buildMap {
+        u.attributesMap.forEach { (k, v) -> put(k, attr(v)) }
+        val tp = u.attributesMap["temperaturePoints"]
+        if (tp != null && tp.attributeTypeCase == VehicleAttributeStatus.AttributeTypeCase.TEMPERATURE_POINTS_VALUE) {
+            val points = tp.temperaturePointsValue.temperaturePointsList
+            val front = points.firstOrNull { it.zone.contains("FRONT", true) && it.zone.contains("LEFT", true) }
+                ?: points.firstOrNull { it.zone.contains("FRONT", true) } ?: points.firstOrNull()
+            if (front != null) put("targetTemp", Attr(tp.status, dbl = front.temperature))
+        }
+    }
 
     private fun attr(v: VehicleAttributeStatus): Attr = when (v.attributeTypeCase) {
         VehicleAttributeStatus.AttributeTypeCase.INT_VALUE -> Attr(v.status, int = v.intValue)
@@ -33,5 +42,12 @@ object ProtoAdapter {
         if (u.hasPositionLong()) put("positionLong", Attr(st(u.positionLong.metadata), dbl = u.positionLong.value))
         if (u.hasPrecondNow()) put("precondNow", Attr(st(u.precondNow.metadata), bool = u.precondNow.valueValue == 1))
         if (u.hasPrecondActive()) put("precondActive", Attr(st(u.precondActive.metadata), bool = u.precondActive.value))
+        if (u.hasTemperaturePoints()) {
+            val points = u.temperaturePoints.valueList
+            val front = points.firstOrNull {
+                it.zone == pt.sergiotaveira.mercedes.proto.TemperaturePointsArrayAttribute.TemperaturePoint.Zone.FRONT_LEFT
+            } ?: points.firstOrNull()
+            if (front != null) put("targetTemp", Attr(st(u.temperaturePoints.metadata), dbl = front.temperature.value))
+        }
     }
 }

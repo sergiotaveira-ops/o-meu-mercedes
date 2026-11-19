@@ -13,6 +13,10 @@ import pt.sergiotaveira.mercedes.proto.VEPUpdate
 import pt.sergiotaveira.mercedes.proto.VSUMetadata
 import pt.sergiotaveira.mercedes.proto.VehicleAttributeStatus
 import pt.sergiotaveira.mercedes.proto.VehicleStatusUpdate
+import pt.sergiotaveira.mercedes.proto.TemperaturePointsValue
+import pt.sergiotaveira.mercedes.proto.TemperaturePoint
+import pt.sergiotaveira.mercedes.proto.TemperaturePointsArrayAttribute
+import pt.sergiotaveira.mercedes.proto.DoubleTemperatureAttribute
 import pt.sergiotaveira.mercedes.proto.Weekday
 import pt.sergiotaveira.mercedes.proto.WeekdayEnumAttribute
 import kotlin.test.assertEquals
@@ -53,6 +57,30 @@ class ProtoAdapterTest {
         assertEquals(Attr(0, dbl = -7.5), a["positionLong"])
         assertEquals(Attr(0, bool = true), a["precondNow"])
         assertFalse("doorlockstatusvehicle" in a)
+    }
+
+    @Test
+    fun vepTemperaturePointsGiveFrontTarget() {
+        val tp = VehicleAttributeStatus.newBuilder().setTemperaturePointsValue(
+            TemperaturePointsValue.newBuilder()
+                .addTemperaturePoints(TemperaturePoint.newBuilder().setZone("FRONT_LEFT").setTemperature(21.5))
+                .addTemperaturePoints(TemperaturePoint.newBuilder().setZone("FRONT_RIGHT").setTemperature(22.0))
+        ).build()
+        val u = VEPUpdate.newBuilder().setVin("V").putAttributes("temperaturePoints", tp).build()
+        assertEquals(Attr(0, dbl = 21.5), ProtoAdapter.attrs(u)["targetTemp"])
+    }
+
+    @Test
+    fun vsuTemperaturePointsGiveFrontTarget() {
+        val valid = VSUMetadata.newBuilder().setStatus(AttributeStatus.VALUE_VALID).build()
+        val u = VehicleStatusUpdate.newBuilder().setFinOrVin("V").setTemperaturePoints(
+            TemperaturePointsArrayAttribute.newBuilder().setMetadata(valid).addValue(
+                TemperaturePointsArrayAttribute.TemperaturePoint.newBuilder()
+                    .setZone(TemperaturePointsArrayAttribute.TemperaturePoint.Zone.FRONT_LEFT)
+                    .setTemperature(DoubleTemperatureAttribute.newBuilder().setValue(20.0))
+            )
+        ).build()
+        assertEquals(Attr(0, dbl = 20.0), ProtoAdapter.attrs(u)["targetTemp"])
     }
 
     @Test

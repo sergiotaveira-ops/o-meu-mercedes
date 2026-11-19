@@ -26,6 +26,8 @@ data class CarState(
     val lat: Double? = null,
     val lon: Double? = null,
     val climateOn: Boolean? = null,
+    /** Target cabin temperature the car currently holds for the front zone, in °C. */
+    val targetTempCelsius: Double? = null,
     val updatedAt: Instant,
     /** Raw end-of-charge wall clock (minutes after midnight) and weekday (Monday = 0), kept across partial updates. */
     val endOfChargeMinutes: Int? = null,

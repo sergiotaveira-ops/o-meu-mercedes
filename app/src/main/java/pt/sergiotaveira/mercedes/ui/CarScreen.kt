@@ -88,7 +88,7 @@ fun CarScreen(ui: UiState, controller: CarController) {
                 } else {
                     BatteryCard(car, now)
                     DoorsCard(car.lock, ui.busy, ui.lastResult, onLock = controller::lock, onUnlock = { askPin = true })
-                    ClimateCard(car.climateOn, ui.busy, onToggle = controller::toggleClimate, onSetTemperature = controller::setTemperature)
+                    ClimateCard(car.climateOn, car.targetTempCelsius, ui.busy, onToggle = controller::toggleClimate, onSetTemperature = controller::setTemperature)
                     LocationCard(car.lat, car.lon)
                     Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                         Text(Format.updatedAgo(car.updatedAt, now.toInstant()), style = MaterialTheme.typography.bodySmall)

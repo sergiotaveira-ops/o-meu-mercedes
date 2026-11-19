@@ -28,6 +28,7 @@ object CarStateParser {
             lat = dbl("positionLat") ?: base.lat,
             lon = dbl("positionLong") ?: base.lon,
             climateOn = bool("precondNow") ?: bool("precondActive") ?: base.climateOn,
+            targetTempCelsius = dbl("targetTemp") ?: base.targetTempCelsius,
             endOfChargeMinutes = minutes,
             endOfChargeWeekday = weekday,
             endOfCharge = if (charging == ChargingState.CHARGING && minutes != null) endOfCharge(minutes, weekday, zone, now) else null,

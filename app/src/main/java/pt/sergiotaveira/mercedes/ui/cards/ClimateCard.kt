@@ -21,7 +21,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -34,10 +34,12 @@ private const val MIN_TEMP = 16.0f
 private const val MAX_TEMP = 28.0f
 
 @Composable
-fun ClimateCard(on: Boolean?, busy: Set<Action>, onToggle: () -> Unit, onSetTemperature: (Double) -> Unit) {
+fun ClimateCard(on: Boolean?, currentTemp: Double?, busy: Set<Action>, onToggle: () -> Unit, onSetTemperature: (Double) -> Unit) {
     val climateBusy = Action.CLIMATE in busy
     val tempBusy = Action.TEMPERATURE in busy
-    var temp by remember { mutableFloatStateOf(21.0f) }
+    // Until the user adjusts it, the stepper tracks the car's reported temperature.
+    var picked by remember { mutableStateOf<Float?>(null) }
+    val temp = (picked ?: currentTemp?.toFloat() ?: 21.0f).coerceIn(MIN_TEMP, MAX_TEMP)
 
     Card(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(20.dp)) {
@@ -62,7 +64,7 @@ fun ClimateCard(on: Boolean?, busy: Set<Action>, onToggle: () -> Unit, onSetTemp
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 OutlinedButton(
-                    onClick = { temp = (temp - 0.5f).coerceAtLeast(MIN_TEMP) },
+                    onClick = { picked = (temp - 0.5f).coerceAtLeast(MIN_TEMP) },
                     enabled = !tempBusy && temp > MIN_TEMP,
                     modifier = Modifier.size(48.dp),
                     contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp),
@@ -76,7 +78,7 @@ fun ClimateCard(on: Boolean?, busy: Set<Action>, onToggle: () -> Unit, onSetTemp
                 )
 
                 OutlinedButton(
-                    onClick = { temp = (temp + 0.5f).coerceAtMost(MAX_TEMP) },
+                    onClick = { picked = (temp + 0.5f).coerceAtMost(MAX_TEMP) },
                     enabled = !tempBusy && temp < MAX_TEMP,
                     modifier = Modifier.size(48.dp),
                     contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp),
